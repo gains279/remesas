@@ -12,7 +12,7 @@
     "lint": "ng lint",
     "serve:ssr:app": "node dist/app/server/server.mjs",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist/app/browser"
+    "deploy": "copy dist\\app\\browser\\index.csr.html dist\\app\\browser\\index.html && copy dist\\app\\browser\\index.csr.html dist\\app\\browser\\404.html && gh-pages -d dist/app/browser"
   },
   "private": true,
   "dependencies": {
