@@ -38,8 +38,8 @@
   },
   "devDependencies": {
     "@angular/build": "^20.3.21",
-    "@angular/cli": "^21.0.0",
-    "@angular/compiler-cli": "^21.0.0",
+    "@angular/cli": "^21.2.3",
+    "@angular/compiler-cli": "^21.2.5",
     "@tailwindcss/postcss": "^4.1.12",
     "@types/express": "^5.0.1",
     "@types/node": "^20.17.19",
