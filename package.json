@@ -37,7 +37,7 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
-    "@angular/build": "^21.0.0",
+    "@angular/build": "^20.3.21",
     "@angular/cli": "^21.0.0",
     "@angular/compiler-cli": "^21.0.0",
     "@tailwindcss/postcss": "^4.1.12",
