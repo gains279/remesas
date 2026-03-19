@@ -1,0 +1,5 @@
+{
+  "name": "RemesaFlow",
+  "description": "App para gestionar remesas, tasas de cambio, wallet y exportar datos a Excel.",
+  "requestFramePermissions": []
+}

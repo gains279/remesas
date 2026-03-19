@@ -1,0 +1,110 @@
+{
+  "entities": {
+    "CurrencyPair": {
+      "title": "Currency Pair",
+      "description": "A pair of currencies with their exchange rate and history.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "base": { "type": "string" },
+        "quote": { "type": "string" },
+        "rate": { "type": "number" },
+        "isFavorite": { "type": "boolean" },
+        "history": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "date": { "type": "string", "format": "date-time" },
+              "rate": { "type": "number" }
+            }
+          }
+        }
+      },
+      "required": ["id", "base", "quote", "rate", "history"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "A financial transaction (deposit, withdrawal, remittance).",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "type": { "type": "string", "enum": ["DEPOSIT", "WITHDRAWAL", "REMITTANCE_IN", "REMITTANCE_OUT"] },
+        "currency": { "type": "string" },
+        "amount": { "type": "number" },
+        "description": { "type": "string" }
+      },
+      "required": ["id", "date", "type", "currency", "amount", "description"]
+    },
+    "Remittance": {
+      "title": "Remittance",
+      "description": "A remittance record.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "senderFirstName": { "type": "string" },
+        "senderLastName": { "type": "string" },
+        "agentName": { "type": "string" },
+        "pairId": { "type": "string" },
+        "amountSent": { "type": "number" },
+        "amountReceived": { "type": "number" },
+        "rate": { "type": "number" },
+        "profitInBase": { "type": "number" }
+      },
+      "required": ["id", "date", "senderFirstName", "senderLastName", "agentName", "pairId", "amountSent", "amountReceived", "rate"]
+    },
+    "Exchange": {
+      "title": "Exchange",
+      "description": "A currency exchange record.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "fromCurrency": { "type": "string" },
+        "toCurrency": { "type": "string" },
+        "amountSold": { "type": "number" },
+        "amountReceived": { "type": "number" },
+        "rate": { "type": "number" },
+        "costRate": { "type": "number" },
+        "profit": { "type": "number" }
+      },
+      "required": ["id", "date", "fromCurrency", "toCurrency", "amountSold", "amountReceived", "rate"]
+    },
+    "AppConfig": {
+      "title": "App Config",
+      "description": "User-specific application configuration.",
+      "type": "object",
+      "properties": {
+        "currencies": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "required": ["currencies"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/pairs/{pairId}": {
+      "schema": "CurrencyPair",
+      "description": "User's currency pairs."
+    },
+    "/users/{userId}/transactions/{transactionId}": {
+      "schema": "Transaction",
+      "description": "User's transactions."
+    },
+    "/users/{userId}/remittances/{remittanceId}": {
+      "schema": "Remittance",
+      "description": "User's remittances."
+    },
+    "/users/{userId}/exchanges/{exchangeId}": {
+      "schema": "Exchange",
+      "description": "User's currency exchanges."
+    },
+    "/users/{userId}/config/main": {
+      "schema": "AppConfig",
+      "description": "User's app configuration."
+    }
+  }
+}

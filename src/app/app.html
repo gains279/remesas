@@ -1,0 +1,119 @@
+<app-error-boundary>
+  @if (!dataService.isAuthReady()) {
+    <div class="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div class="animate-pulse flex flex-col items-center gap-4">
+        <div class="w-12 h-12 rounded-2xl bg-indigo-100 flex items-center justify-center text-indigo-600">
+          <mat-icon>currency_exchange</mat-icon>
+        </div>
+        <p class="text-slate-400 font-medium">Cargando RemesaFlow...</p>
+      </div>
+    </div>
+  } @else if (!dataService.user()) {
+    <div class="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+      <div class="max-w-md w-full bg-white rounded-[2.5rem] p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 text-center">
+        <div class="w-20 h-20 rounded-3xl bg-indigo-50 flex items-center justify-center text-indigo-600 mx-auto mb-8 shadow-sm border border-indigo-100/50">
+          <mat-icon class="text-4xl w-9 h-9">currency_exchange</mat-icon>
+        </div>
+        <h2 class="text-3xl font-display font-bold text-slate-800 mb-3">Bienvenido a RemesaFlow</h2>
+        <p class="text-slate-500 mb-10 leading-relaxed">Gestiona tus remesas, divisas y wallet de forma segura y profesional.</p>
+        
+        <button (click)="dataService.login()" class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold text-lg hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200 flex items-center justify-center gap-3">
+          <svg class="w-6 h-6" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+            <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+          </svg>
+          Iniciar sesión con Google
+        </button>
+        
+        <p class="mt-8 text-xs text-slate-400">
+          Al iniciar sesión, aceptas nuestros términos de servicio y política de privacidad.
+        </p>
+      </div>
+    </div>
+  } @else {
+    <div class="min-h-screen bg-slate-50/50 flex font-sans text-slate-600 overflow-hidden">
+      <!-- Sidebar Overlay (Mobile) -->
+      @if (isSidebarOpen()) {
+        <div class="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-20 lg:hidden transition-opacity" (click)="isSidebarOpen.set(false)" (keydown.enter)="isSidebarOpen.set(false)" tabindex="0" role="button" aria-label="Cerrar menú"></div>
+      }
+
+      <!-- Sidebar -->
+      <aside class="fixed lg:static inset-y-0 left-0 z-30 bg-white border-r border-slate-100 text-slate-600 flex flex-col shrink-0 transition-all duration-300 ease-in-out overflow-hidden shadow-[4px_0_24px_rgba(0,0,0,0.02)]"
+             [class.w-72]="isSidebarOpen()"
+             [class.w-0]="!isSidebarOpen()"
+             [class.-translate-x-full]="!isSidebarOpen()"
+             [class.translate-x-0]="isSidebarOpen()">
+        <div class="w-72 flex flex-col h-full">
+          <div class="p-8 flex items-center gap-3 text-slate-800 font-display font-bold text-2xl tracking-tight">
+            <div class="w-10 h-10 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-sm border border-indigo-100/50">
+              <mat-icon class="text-indigo-600">currency_exchange</mat-icon>
+            </div>
+            RemesaFlow
+          </div>
+          <nav class="flex-1 px-6 space-y-1.5 mt-2 overflow-y-auto font-medium">
+            <a routerLink="/dashboard" routerLinkActive="bg-indigo-50 text-indigo-700 shadow-sm border border-indigo-100/50" class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl hover:bg-slate-50 text-slate-500 hover:text-slate-700 transition-all duration-200">
+              <mat-icon class="text-[22px]">dashboard</mat-icon>
+              Dashboard
+            </a>
+            <a routerLink="/remittances" routerLinkActive="bg-indigo-50 text-indigo-700 shadow-sm border border-indigo-100/50" class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl hover:bg-slate-50 text-slate-500 hover:text-slate-700 transition-all duration-200">
+              <mat-icon class="text-[22px]">send</mat-icon>
+              Remesas
+            </a>
+            <a routerLink="/wallet" routerLinkActive="bg-indigo-50 text-indigo-700 shadow-sm border border-indigo-100/50" class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl hover:bg-slate-50 text-slate-500 hover:text-slate-700 transition-all duration-200">
+              <mat-icon class="text-[22px]">account_balance_wallet</mat-icon>
+              Wallet
+            </a>
+            <a routerLink="/pairs" routerLinkActive="bg-indigo-50 text-indigo-700 shadow-sm border border-indigo-100/50" class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl hover:bg-slate-50 text-slate-500 hover:text-slate-700 transition-all duration-200">
+              <mat-icon class="text-[22px]">swap_horiz</mat-icon>
+              Pares y Tasas
+            </a>
+            <a routerLink="/profits" routerLinkActive="bg-indigo-50 text-indigo-700 shadow-sm border border-indigo-100/50" class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl hover:bg-slate-50 text-slate-500 hover:text-slate-700 transition-all duration-200">
+              <mat-icon class="text-[22px]">trending_up</mat-icon>
+              Ganancias
+            </a>
+          </nav>
+          <div class="p-6 mt-auto font-medium space-y-2">
+            <a routerLink="/settings" routerLinkActive="bg-indigo-50 text-indigo-700 shadow-sm border border-indigo-100/50" class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl hover:bg-slate-50 text-slate-500 hover:text-slate-700 transition-all duration-200">
+              <mat-icon class="text-[22px]">settings</mat-icon>
+              Configuración
+            </a>
+            <button (click)="dataService.logout()" class="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl hover:bg-rose-50 text-slate-500 hover:text-rose-600 transition-all duration-200">
+              <mat-icon class="text-[22px]">logout</mat-icon>
+              Cerrar Sesión
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="flex-1 flex flex-col h-screen overflow-hidden relative bg-slate-50/50">
+        <header class="h-20 bg-white/80 backdrop-blur-md border-b border-slate-100/80 flex items-center px-6 sm:px-10 justify-between shrink-0 z-10 sticky top-0">
+          <div class="flex items-center gap-5">
+            <button (click)="isSidebarOpen.set(!isSidebarOpen())" class="p-2.5 rounded-xl hover:bg-slate-100 text-slate-500 hover:text-slate-700 transition-colors focus:outline-none">
+              <mat-icon>menu</mat-icon>
+            </button>
+            <h1 class="text-xl font-display font-semibold text-slate-800 hidden sm:block">Gestión de Remesas</h1>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="flex flex-col items-end hidden sm:flex">
+              <span class="text-sm font-bold text-slate-800">{{ dataService.user()?.displayName }}</span>
+              <span class="text-[10px] text-slate-400 uppercase tracking-wider font-bold">Agente Activo</span>
+            </div>
+            <div class="w-10 h-10 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 font-display font-medium shadow-sm cursor-pointer hover:bg-indigo-100 transition-colors overflow-hidden">
+              @if (dataService.user()?.photoURL) {
+                <img [src]="dataService.user()?.photoURL" alt="Avatar" class="w-full h-full object-cover">
+              } @else {
+                {{ dataService.user()?.displayName?.charAt(0) }}
+              }
+            </div>
+          </div>
+        </header>
+        <div class="flex-1 overflow-auto p-6 sm:p-10">
+          <router-outlet></router-outlet>
+        </div>
+      </main>
+    </div>
+  }
+</app-error-boundary>

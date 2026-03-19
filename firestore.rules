@@ -1,0 +1,176 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: /users/{userId}/pairs
+    // Document ID: pairId (e.g., "USD-EUR")
+    // Fields:
+    //   - id: string (required)
+    //   - base: string (required)
+    //   - quote: string (required)
+    //   - rate: number (required)
+    //   - isFavorite: bool (optional)
+    //   - history: list (required, items: {date: string, rate: number})
+    //
+    // Collection: /users/{userId}/transactions
+    // Document ID: transactionId
+    // Fields:
+    //   - id: string (required)
+    //   - date: string (required, ISO 8601)
+    //   - type: string (required, enum: DEPOSIT, WITHDRAWAL, REMITTANCE_IN, REMITTANCE_OUT)
+    //   - currency: string (required)
+    //   - amount: number (required)
+    //   - description: string (required)
+    //
+    // Collection: /users/{userId}/remittances
+    // Document ID: remittanceId
+    // Fields:
+    //   - id: string (required)
+    //   - date: string (required, ISO 8601)
+    //   - senderFirstName: string (required)
+    //   - senderLastName: string (required)
+    //   - agentName: string (required)
+    //   - pairId: string (required)
+    //   - amountSent: number (required)
+    //   - amountReceived: number (required)
+    //   - rate: number (required)
+    //   - profitInBase: number (optional)
+    //
+    // Collection: /users/{userId}/exchanges
+    // Document ID: exchangeId
+    // Fields:
+    //   - id: string (required)
+    //   - date: string (required, ISO 8601)
+    //   - fromCurrency: string (required)
+    //   - toCurrency: string (required)
+    //   - amountSold: number (required)
+    //   - amountReceived: number (required)
+    //   - rate: number (required)
+    //   - costRate: number (optional)
+    //   - profit: number (optional)
+    //
+    // Collection: /users/{userId}/config
+    // Document ID: main
+    // Fields:
+    //   - currencies: list (required, items: string)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function isValidDateString(dateStr) {
+      return dateStr is string &&
+        dateStr.matches("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*Z?$");
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    function isValidPair(data) {
+      return hasRequiredFields(['id', 'base', 'quote', 'rate', 'history']) &&
+             data.id is string && data.id.size() < 20 &&
+             data.base is string && data.base.size() == 3 &&
+             data.quote is string && data.quote.size() == 3 &&
+             data.rate is number &&
+             data.history is list && data.history.size() < 1000;
+    }
+
+    function isValidTransaction(data) {
+      return hasRequiredFields(['id', 'date', 'type', 'currency', 'amount', 'description']) &&
+             data.id is string && data.id.size() < 50 &&
+             isValidDateString(data.date) &&
+             data.type in ['DEPOSIT', 'WITHDRAWAL', 'REMITTANCE_IN', 'REMITTANCE_OUT'] &&
+             data.currency is string && data.currency.size() == 3 &&
+             data.amount is number &&
+             data.description is string && data.description.size() < 200;
+    }
+
+    function isValidRemittance(data) {
+      return hasRequiredFields(['id', 'date', 'senderFirstName', 'senderLastName', 'agentName', 'pairId', 'amountSent', 'amountReceived', 'rate']) &&
+             data.id is string && data.id.size() < 50 &&
+             isValidDateString(data.date) &&
+             data.senderFirstName is string && data.senderFirstName.size() < 100 &&
+             data.senderLastName is string && data.senderLastName.size() < 100 &&
+             data.agentName is string && data.agentName.size() < 100 &&
+             data.pairId is string && data.pairId.size() < 20 &&
+             data.amountSent is number &&
+             data.amountReceived is number &&
+             data.rate is number;
+    }
+
+    function isValidExchange(data) {
+      return hasRequiredFields(['id', 'date', 'fromCurrency', 'toCurrency', 'amountSold', 'amountReceived', 'rate']) &&
+             data.id is string && data.id.size() < 50 &&
+             isValidDateString(data.date) &&
+             data.fromCurrency is string && data.fromCurrency.size() == 3 &&
+             data.toCurrency is string && data.toCurrency.size() == 3 &&
+             data.amountSold is number &&
+             data.amountReceived is number &&
+             data.rate is number;
+    }
+
+    function isValidConfig(data) {
+      return hasRequiredFields(['currencies']) &&
+             data.currencies is list && data.currencies.size() < 100;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+
+      match /pairs/{pairId} {
+        allow read: if isOwner(userId);
+        allow create, update: if isOwner(userId) && isValidPair(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+
+      match /transactions/{transactionId} {
+        allow read: if isOwner(userId);
+        allow create, update: if isOwner(userId) && isValidTransaction(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+
+      match /remittances/{remittanceId} {
+        allow read: if isOwner(userId);
+        allow create, update: if isOwner(userId) && isValidRemittance(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+
+      match /exchanges/{exchangeId} {
+        allow read: if isOwner(userId);
+        allow create, update: if isOwner(userId) && isValidExchange(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+
+      match /config/{configId} {
+        allow read: if isOwner(userId);
+        allow create, update: if isOwner(userId) && isValidConfig(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+    }
+  }
+}
